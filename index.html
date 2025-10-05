@@ -53,7 +53,7 @@
       const payload = Object.fromEntries(formData.entries());
 
       try {
-        const res = await fetch('https://nda-consent-form-otoz.onrender.com/', {
+        const res = await fetch('https://consent-api-ddkq.onrender.com/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
