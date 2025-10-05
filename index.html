@@ -3,25 +3,41 @@
 <head>
   <title>Consent Form</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
-    input, button { margin-top: 1rem; width: 100%; padding: 0.5rem; }
-    #pricingTable { display: none; margin-top: 2rem; }
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    input, button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    #pricingTable {
+      display: none;
+      margin-top: 2rem;
+    }
   </style>
   <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
 </head>
 <body>
   <h2>Agree to NDA & Terms</h2>
-<form id="consentForm">
-  <input type="text" name="firstName" placeholder="First name" required>
-  <input type="text" name="lastName" placeholder="Last name" required>
-  <input type="email" name="email" placeholder="Your email" required>
-  <input type="text" name="discordHandle" placeholder="Discord handle" required>
-  <label>
-    <input type="checkbox" name="agreeToTerms" required>
-    I agree to the <a href="https://your-nda-link.com" target="_blank">NDA and Terms of Use</a>
-  </label>
-  <button type="submit">Continue to Payment</button>
-</form>
+  <form id="consentForm">
+    <input type="text" name="firstName" placeholder="First name" required>
+    <input type="text" name="lastName" placeholder="Last name" required>
+    <input type="email" name="email" placeholder="Your email" required>
+    <input type="text" name="discordHandle" placeholder="Discord handle" required>
+    <label>
+      <input type="checkbox" name="agreeToTerms" required>
+      I agree to the <a href="https://your-nda-link.com" target="_blank">NDA and Terms of Use</a>
+    </label>
+    <button type="submit">Continue to Payment</button>
+  </form>
 
   <div id="pricingTable">
     <stripe-pricing-table
@@ -36,15 +52,23 @@
       const formData = new FormData(e.target);
       const payload = Object.fromEntries(formData.entries());
 
-      await fetch('https://your-render-api.onrender.com/log-consent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      try {
+        const res = await fetch('https://consent-api.onrender.com/log-consent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-      // Show Stripe Pricing Table
-      document.getElementById('consentForm').style.display = 'none';
-      document.getElementById('pricingTable').style.display = 'block';
+        if (res.ok) {
+          document.getElementById('consentForm').style.display = 'none';
+          document.getElementById('pricingTable').style.display = 'block';
+        } else {
+          alert('Failed to log consent. Please try again.');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Error submitting form. Check your connection.');
+      }
     });
   </script>
 </body>
