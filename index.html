@@ -17,12 +17,11 @@
       display: block;
       margin-top: 1rem;
     }
-    #pricingTable {
-      display: none;
-      margin-top: 2rem;
+    #status {
+      margin-top: 1rem;
+      color: #333;
     }
   </style>
-  <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
 </head>
 <body>
   <h2>Agree to NDA & Terms</h2>
@@ -34,7 +33,7 @@
 
     <label id="consentLabel">
       <input type="checkbox" name="agreeToTerms" required>
-      By checking this box, I, <span id="subscriberName">[Subscriber Full Name]</span>, acknowledge that I have read, understood, and agree to be bound by the terms and conditions of the 
+      By checking this box, I, <span id="subscriberName">[Subscriber Full Name]</span>, acknowledge that I have read, understood, and agree to be bound by the terms and conditions of the
       <a href="https://drive.google.com/file/d/1GlLJvCWTqppipz6e5v03_sLc4FXXqBfR/view?usp=drive_link" target="_blank">
         Non-Disclosure Agreement, Terms of Use, Intellectual Property Statement, Confidentiality Obligations, Disclaimer, and Definitions
       </a> as provided.
@@ -43,12 +42,7 @@
     <button type="submit">Continue to Payment</button>
   </form>
 
-  <div id="pricingTable">
-    <stripe-pricing-table
-      pricing-table-id="prctbl_1SEflnFQrDUieGOi6a0r0XaV"
-      publishable-key="pk_live_51S2YRDFQrDUieGOil2txDaUwYBbSvUXOV97HmAMguCy7HmjQXqaoulZZiaNbuebFdy1KLqjr7O1cOoQe2nXZIByA00pHIwuoMy">
-    </stripe-pricing-table>
-  </div>
+  <div id="status"></div>
 
   <script>
     // Autofill subscriber name in checkbox label
@@ -68,24 +62,32 @@
       const formData = new FormData(e.target);
       const payload = Object.fromEntries(formData.entries());
 
+      const status = document.getElementById('status');
+      status.textContent = 'Submitting NDA...';
+
       try {
-        const res = await fetch('https://consent-api-ddkq.onrender.com/log-consent', {
+        const res = await fetch('https://consent-api-ddkq.onrender.com/start-subscription', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
-        if (res.ok) {
-          document.getElementById('consentForm').style.display = 'none';
-          document.getElementById('pricingTable').style.display = 'block';
+        const data = await res.json();
+
+        if (res.ok && data.url) {
+          status.textContent = 'Redirecting to secure payment...';
+          window.location.href = data.url; // Redirect to Stripe Checkout
         } else {
-          alert('Failed to log consent. Please try again.');
+          status.textContent = 'Failed to start subscription. Please try again.';
+          alert(data.error || 'Failed to start subscription.');
         }
       } catch (err) {
         console.error('Error:', err);
+        status.textContent = 'Error submitting form. Please check your connection.';
         alert('Error submitting form. Check your connection.');
       }
     });
   </script>
 </body>
 </html>
+
