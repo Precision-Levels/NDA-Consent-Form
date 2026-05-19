@@ -21,6 +21,14 @@
       margin-top: 1rem;
       color: #333;
     }
+    .plan-option {
+      font-size: 16px;
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
   </style>
 </head>
 <body>
@@ -30,6 +38,16 @@
     <input type="text" name="lastName" placeholder="Last name" required>
     <input type="email" name="email" placeholder="Your email" required>
     <input type="text" name="discordHandle" placeholder="Discord handle" required>
+
+    <!-- PLAN SELECTOR -->
+    <div class="plan-option">
+      <strong>Choose your subscription:</strong><br><br>
+      <input type="radio" name="plan" value="monthly" checked> 
+      <strong>Monthly</strong> — $99/month (includes 7-day free trial)<br><br>
+      
+      <input type="radio" name="plan" value="yearly"> 
+      <strong>Yearly</strong> — $710/year (bigger discount • no trial)
+    </div>
 
     <label id="consentLabel">
       <input type="checkbox" name="agreeToTerms" required>
@@ -61,6 +79,9 @@
       e.preventDefault();
       const formData = new FormData(e.target);
       const payload = Object.fromEntries(formData.entries());
+      
+      // Add plan selection to payload
+      payload.plan = document.querySelector('input[name="plan"]:checked')?.value || 'monthly';
 
       const status = document.getElementById('status');
       status.textContent = 'Submitting NDA...';
