@@ -7,63 +7,94 @@
       padding: 2rem;
       max-width: 600px;
       margin: auto;
+      background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+    .form-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      color: #1e2937;
     }
     input, button {
       margin-top: 1rem;
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
     }
     label {
       display: block;
-      margin-top: 1rem;
+      margin-top: 1.25rem;
+      font-weight: 500;
+    }
+    .plan-option {
+      background: #f8fafc;
+      padding: 18px;
+      border-radius: 12px;
+      margin: 20px 0;
+      border: 2px solid #e2e8f0;
+    }
+    .plan-option input[type="radio"] {
+      width: auto;
+      margin-right: 10px;
     }
     #status {
       margin-top: 1rem;
-      color: #333;
+      color: #334155;
+      font-weight: 500;
     }
-    .plan-option {
-      font-size: 16px;
-      margin: 20px 0;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background-color: #f9f9f9;
+    button {
+      background: #1e40af;
+      color: white;
+      font-weight: bold;
+      padding: 1rem;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    button:hover {
+      background: #1e3a8a;
     }
   </style>
 </head>
 <body>
-  <h2>Agree to NDA & Terms</h2>
-  <form id="consentForm">
-    <input type="text" name="firstName" placeholder="First name" required>
-    <input type="text" name="lastName" placeholder="Last name" required>
-    <input type="email" name="email" placeholder="Your email" required>
-    <input type="text" name="discordHandle" placeholder="Discord handle" required>
+  <div class="form-container">
+    <h2>Agree to NDA & Terms</h2>
+    <form id="consentForm">
+      <input type="text" name="firstName" placeholder="First name" required>
+      <input type="text" name="lastName" placeholder="Last name" required>
+      <input type="email" name="email" placeholder="Your email" required>
+      <input type="text" name="discordHandle" placeholder="Discord handle" required>
 
-    <!-- PLAN SELECTOR -->
-    <div class="plan-option">
-      <strong>Choose your subscription:</strong><br><br>
-      <input type="radio" name="plan" value="monthly" checked> 
-      <strong>Monthly</strong> — $99/month (includes 7-day free trial)<br><br>
-      
-      <input type="radio" name="plan" value="yearly"> 
-      <strong>Yearly</strong> — $710/year (bigger discount • no trial)
-    </div>
+      <!-- Plan Selector -->
+      <div class="plan-option">
+        <strong>Choose your subscription:</strong><br><br>
+        
+        <input type="radio" name="plan" value="monthly" checked> 
+        <strong>Monthly</strong> — $99/month (7-day free trial)<br><br>
+        
+        <input type="radio" name="plan" value="yearly"> 
+        <strong>Yearly</strong> — $710/year (equivalent to $59.17/month • Save 40% • no trial)
+      </div>
 
-    <label id="consentLabel">
-      <input type="checkbox" name="agreeToTerms" required>
-      By checking this box, I, <span id="subscriberName">[Subscriber Full Name]</span>, acknowledge that I have read, understood, and agree to be bound by the terms and conditions of the
-      <a href="https://drive.google.com/file/d/1GlLJvCWTqppipz6e5v03_sLc4FXXqBfR/view?usp=drive_link" target="_blank">
-        Non-Disclosure Agreement, Terms of Use, Intellectual Property Statement, Confidentiality Obligations, Disclaimer, and Definitions
-      </a> as provided.
-    </label>
+      <label id="consentLabel">
+        <input type="checkbox" name="agreeToTerms" required>
+        By checking this box, I, <span id="subscriberName">[Subscriber Full Name]</span>, acknowledge that I have read, understood, and agree to be bound by the terms and conditions of the
+        <a href="https://drive.google.com/file/d/1GlLJvCWTqppipz6e5v03_sLc4FXXqBfR/view?usp=drive_link" target="_blank">
+          Non-Disclosure Agreement, Terms of Use, Intellectual Property Statement, Confidentiality Obligations, Disclaimer, and Definitions
+        </a> as provided.
+      </label>
 
-    <button type="submit">Continue to Payment</button>
-  </form>
+      <button type="submit">Continue to Payment</button>
+    </form>
 
-  <div id="status"></div>
+    <div id="status"></div>
+  </div>
 
   <script>
-    // Autofill subscriber name in checkbox label
     function updateSubscriberName() {
       const first = document.querySelector('input[name="firstName"]').value.trim();
       const last = document.querySelector('input[name="lastName"]').value.trim();
@@ -74,13 +105,10 @@
     document.querySelector('input[name="firstName"]').addEventListener('input', updateSubscriberName);
     document.querySelector('input[name="lastName"]').addEventListener('input', updateSubscriberName);
 
-    // Form submission handler
     document.getElementById('consentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
       const payload = Object.fromEntries(formData.entries());
-      
-      // Add plan selection to payload
       payload.plan = document.querySelector('input[name="plan"]:checked')?.value || 'monthly';
 
       const status = document.getElementById('status');
@@ -97,7 +125,7 @@
 
         if (res.ok && data.url) {
           status.textContent = 'Redirecting to secure payment...';
-          window.location.href = data.url; // Redirect to Stripe Checkout
+          window.location.href = data.url;
         } else {
           status.textContent = 'Failed to start subscription. Please try again.';
           alert(data.error || 'Failed to start subscription.');
